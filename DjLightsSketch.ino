@@ -2,8 +2,8 @@
 
 
 //looping buttons
-const int doublePin = 7;
-const int halfPin = 5;
+const int doublePin = 5;
+const int halfPin = 7;
 const int normalPin = 6;
 
 
@@ -13,6 +13,7 @@ const int rotB = 3;
 const int rotA = 4;
 int rotAState = LOW;
 int rotALastState = rotAState;
+int lastRotBtnState;
 
 //display 
 const int dispDataPin = 10;
@@ -28,7 +29,7 @@ float currentBPM = 126;
 float storedBPM = 126;
 int millsBetweenFlash;
 float multiplier = 1;
-int flashDuration = 50;
+int flashDuration = 25;
 bool multiplied = false;
 
 unsigned long currentMillis;
@@ -52,6 +53,7 @@ void setup()
   pinMode(rotA,INPUT_PULLUP);
   pinMode(rotB,INPUT_PULLUP);
   rotAState = digitalRead(rotA);
+  lastRotBtnState = digitalRead(rotaryBtn);
 
   millsBetweenFlash = round(60000/currentBPM) - round(flashDuration/2);
   currentMillis = millis();
@@ -75,12 +77,14 @@ void setup()
 void loop() 
 {
   //start button
-  int startButtonState = digitalRead(rotaryBtn);
-  if(startButtonState == LOW)
+  int rotBtnState = digitalRead(rotaryBtn);
+  if(rotBtnState == HIGH && lastRotBtnState == LOW) //is no longer pressed
   {
     FlashLeds();
-    delay(50);
+    delay(20);
   }
+
+  lastRotBtnState = digitalRead(rotaryBtn);
 
   CheckLoopingButtons();
 
@@ -97,7 +101,8 @@ void loop()
   currentMillis = millis();
   if(currentMillis - previousMillis >= millsBetweenFlash)
   {
-    FlashLeds();
+    if(rotBtnState != LOW)
+      FlashLeds();
   }
 
   
